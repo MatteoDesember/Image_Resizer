@@ -27,7 +27,7 @@ INFO = """
 
 
 class MyImage:
-    # displayed_image - it is Tkinter image not opencv image
+    # displayed_image - it is a Tkinter image not an opencv image
     displayed_image = None
 
     zoomed_image = None
@@ -361,8 +361,10 @@ class MyImage:
     def left_button_release(self, event):
         self.draw_flag = False
 
-        # If there is situation where start_x or start_y is little further (from 0, 0 coordinating system), rotate rectangle
-        # There is no effect while drawing rectangle but when exporting part of image there is important where are taht points
+        # If there is situation where x_start or y_start is little further
+        # than x_end or y_end(from 0, 0 coordinating system),rotate rectangle
+        # There is no effect while drawing rectangle
+        # but when exporting part of image there is important where are that points
         # e.g.
         # BEFORE:
         # x_stat, y_start

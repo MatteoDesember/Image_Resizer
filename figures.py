@@ -10,8 +10,8 @@ A3_HEIGHT = 297
 A4_WIDTH = 297
 A4_HEIGHT = 210
 
-# 1 inch = self.inch_in_mm mm
-inch_in_mm = 25.4
+# 1 inch = mm_in_inch
+mm_in_inch = 25.4
 
 
 class Rectangle:
@@ -25,7 +25,7 @@ class Rectangle:
     y_end = None
     width = None
     height = None
-    pixel_per_inch = 5  # Default value is 5, but if user select 1 inch this variable is changed
+    pixel_per_inch = 5  # Default value is 5, but if user select 1 inch on zoomed_image this variable is changed
 
     def set_x_y_center(self, x_center, y_center):
         self.x_center = x_center
@@ -40,36 +40,36 @@ class Rectangle:
         # calculate start, end points and width and height depend on size type
         if self.size == A4_VERTICAL:
             self.name = "A4_V"
-            self.x_start = self.x_center - (A4_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_start = self.y_center - (A4_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.x_end = self.x_center + (A4_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_end = self.y_center + (A4_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.width = A4_HEIGHT / inch_in_mm * self.pixel_per_inch
-            self.height = A4_WIDTH / inch_in_mm * self.pixel_per_inch
+            self.x_start = self.x_center - (A4_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_start = self.y_center - (A4_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.x_end = self.x_center + (A4_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_end = self.y_center + (A4_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.width = A4_HEIGHT / mm_in_inch * self.pixel_per_inch
+            self.height = A4_WIDTH / mm_in_inch * self.pixel_per_inch
         elif self.size == A4_HORIZONTAL:
             self.name = "A4_H"
-            self.x_start = self.x_center - (A4_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_start = self.y_center - (A4_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.x_end = self.x_center + (A4_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_end = self.y_center + (A4_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.width = A4_WIDTH / inch_in_mm * self.pixel_per_inch
-            self.height = A4_HEIGHT / inch_in_mm * self.pixel_per_inch
+            self.x_start = self.x_center - (A4_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_start = self.y_center - (A4_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.x_end = self.x_center + (A4_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_end = self.y_center + (A4_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.width = A4_WIDTH / mm_in_inch * self.pixel_per_inch
+            self.height = A4_HEIGHT / mm_in_inch * self.pixel_per_inch
         elif self.size == A3_VERTICAL:
             self.name = "A3_V"
-            self.x_start = self.x_center - (A3_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_start = self.y_center - (A3_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.x_end = self.x_center + (A3_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_end = self.y_center + (A3_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.width = A3_HEIGHT / inch_in_mm * self.pixel_per_inch
-            self.height = A3_WIDTH / inch_in_mm * self.pixel_per_inch
+            self.x_start = self.x_center - (A3_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_start = self.y_center - (A3_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.x_end = self.x_center + (A3_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_end = self.y_center + (A3_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.width = A3_HEIGHT / mm_in_inch * self.pixel_per_inch
+            self.height = A3_WIDTH / mm_in_inch * self.pixel_per_inch
         elif self.size == A3_HORIZONTAL:
             self.name = "A3_H"
-            self.x_start = self.x_center - (A3_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_start = self.y_center - (A3_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.x_end = self.x_center + (A3_WIDTH / inch_in_mm * self.pixel_per_inch / 2)
-            self.y_end = self.y_center + (A3_HEIGHT / inch_in_mm * self.pixel_per_inch / 2)
-            self.width = A3_WIDTH / inch_in_mm * self.pixel_per_inch
-            self.height = A3_HEIGHT / inch_in_mm * self.pixel_per_inch
+            self.x_start = self.x_center - (A3_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_start = self.y_center - (A3_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.x_end = self.x_center + (A3_WIDTH / mm_in_inch * self.pixel_per_inch / 2)
+            self.y_end = self.y_center + (A3_HEIGHT / mm_in_inch * self.pixel_per_inch / 2)
+            self.width = A3_WIDTH / mm_in_inch * self.pixel_per_inch
+            self.height = A3_HEIGHT / mm_in_inch * self.pixel_per_inch
 
     # print short info about rectangle
     def info(self):
