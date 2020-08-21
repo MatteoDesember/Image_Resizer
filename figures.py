@@ -71,8 +71,8 @@ class Rectangle:
             self.width = A3_WIDTH / mm_in_inch * self.pixel_per_inch
             self.height = A3_HEIGHT / mm_in_inch * self.pixel_per_inch
 
-    # print short info about rectangle
     def info(self):
+        """display short info about rectangle"""
         print("[",
               self.x_start, self.y_start, "] [",
               self.x_center, self.y_center, "] [",
@@ -88,6 +88,6 @@ class Line:
     y_start = 0
     y_end = 0
 
-    # print short info about line
     def info(self):
+        """print short info about line"""
         print("[", self.x_start, self.y_start, "] [", self.x_end, self.y_end, "]")

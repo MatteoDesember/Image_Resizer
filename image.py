@@ -11,7 +11,7 @@ from PIL import ImageTk, Image
 import numpy as np
 import cv2
 from win32api import GetSystemMetrics
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 INFO = """
 *********************************************
@@ -619,6 +619,7 @@ class MyImage:
                 print("Doesn't select file.")
         except:
             print(" ..There is a problem with saving PDF. Is it open?")
+            messagebox.showerror("Can't save file", "There is a problem with saving PDF. Is it open?")
 
 # def image_resize(image, target_width=None, target_height=None, inter=cv2.INTER_AREA):
 #     # initialize the dimensions of the image to be resized and
