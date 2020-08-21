@@ -78,8 +78,11 @@ class MyImage:
         if self.gray_image.shape[0] > self.gray_image.shape[1]:
             self.gray_image = cv2.rotate(self.gray_image, cv2.ROTATE_90_CLOCKWISE)
 
+        # Adaptive Treshold, with those values the background on image is deleted. Works pretty much for me
+        self.bit_map_image = self.adaptive_treshold(self.gray_image, 11, 5)
+
         # And then convert to color, so there is a gray image on which user can draw coloured figures
-        self.cv_image = cv2.cvtColor(self.gray_image, cv2.COLOR_GRAY2RGB)
+        self.cv_image = cv2.cvtColor(self.bit_map_image, cv2.COLOR_GRAY2RGB)
 
         # cv_displayed_image is an image to draw on it
         self.cv_displayed_image = self.cv_image.copy()
@@ -107,6 +110,19 @@ class MyImage:
 
         # Set window size
         self.root.geometry("{}x{}".format(window_width, window_height))
+
+    '''
+        adaptive_treshold create black and white image (like bitmap image) with the given block_size and c_value
+    '''
+
+    def adaptive_treshold(self, image, block_size, c_value):
+        gray_image_adaptive_treshold = cv2.adaptiveThreshold(src=image,
+                                                             maxValue=255,
+                                                             adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                                             thresholdType=cv2.THRESH_BINARY,
+                                                             blockSize=block_size,
+                                                             C=c_value)
+        return gray_image_adaptive_treshold
 
     '''
         create_custom_rectangle_listeners sets some listeners which allow to draw custom rectangle
@@ -168,13 +184,13 @@ class MyImage:
         add_rectangle adds rectangle to image
     '''
 
-    def add_rectangle(self, image, rectangle, ratio=1.0):
+    def add_rectangle(self, image, rectangle, ratio=1.0, thickness=2):
         cv2.rectangle(
             image,
             (round(rectangle.x_start * ratio), round(rectangle.y_start * ratio)),
             (round(rectangle.x_end * ratio), round(rectangle.y_end * ratio)),
             (0, 255, 0),  # BGR Green
-            2)
+            thickness)
 
     '''
         put_text adds text to image. 
@@ -313,36 +329,6 @@ class MyImage:
         self.show_rectangle(self.rectangle)
 
     '''
-        add image to pdf
-    '''
-
-    def put_image_into_pdf(self, image, pdf):
-        # Create random string
-        random_file_name = ''.join(random.choices(string.digits, k=5))
-
-        # Get file extention
-        file_extention = os.path.splitext(self.image_dir)[1]
-
-        # If there is horizontal image rotate it 90 clockwise
-        if image.shape[0] < image.shape[1]:
-            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-
-        # Write temporary image to disk
-        # I have no idea how to make it better way
-        # As I know there is no way to put cv2 image or file image directly to FPDF
-        # And there is next issue: FPDF saves image in 72 DPI. There is no way to increse that
-        # so the images cant be lower quality
-        # If there would be easy way to save in original DPI there would be fantastic!
-        cv2.imwrite("_temp_" + random_file_name + file_extention, image)
-
-        # Add page and put image to pdf page
-        pdf.add_page()
-        pdf.image("_temp_" + random_file_name + file_extention, x=0, y=0, w=210, h=297, type='', link='')
-
-        # Remove temporary image from disk
-        os.remove("_temp_" + random_file_name + file_extention)
-
-    '''
         left_button_down makes start point and end point so then on mouse move there can be rectangle displayed
     '''
 
@@ -458,6 +444,17 @@ class MyImage:
 
         elif event.keycode == 72:  # 'h' or 'H'
             print(INFO)
+        # elif event.keycode == 37:  # left arrow
+        #     self.cv_image = self.adaptive_treshold(self.cv_displayed_image, 11, 1)
+        #     self.cv_displayed_image = self.cv_image.copy()
+        #     self.show_cv_image(self.cv_displayed_image)
+        #     pass
+        # elif event.keycode == 38:  # up arrow
+        #     pass
+        # elif event.keycode == 39:  # right arrow
+        #     pass
+        # elif event.keycode == 30:  # right arrow
+        #     pass
 
     '''
         If user resizes window then resize image and figures on it
@@ -477,19 +474,61 @@ class MyImage:
         self.show_cv_image(self.cv_displayed_image)
 
     '''
+        add image to pdf
+    '''
+
+    def put_image_into_pdf(self, image, pdf):
+        # Generate random string
+        random_file_name = ''.join(random.choices(string.digits, k=5))
+
+        # Get file extention
+        file_extention = os.path.splitext(self.image_dir)[1]
+
+        # If there is horizontal image rotate it 90 clockwise
+        if image.shape[0] < image.shape[1]:
+            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+        # Write temporary image to disk
+        # I have no idea how to make it better way
+        # As I know there is no way to put cv2 image or file image directly to FPDF
+        # And there is next issue: FPDF saves image in 72 DPI. There is no way to increse that
+        # so the images cant be lower quality
+        # If there would be easy way to save in original DPI there would be fantastic!
+        cv2.imwrite("_temp_" + random_file_name + file_extention, image)
+
+        # Add page and put image to pdf page
+        pdf.add_page()
+        pdf.image("_temp_" + random_file_name + file_extention, x=0, y=0, w=210, h=297, type='', link='')
+
+        # Remove temporary image from disk
+        os.remove("_temp_" + random_file_name + file_extention)
+
+    '''
         Save to pdf
     '''
 
     def save(self):
         print("Saving to pdf...")
 
+        # Create PDF
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
+
         # pdf_image is the original image ont resized, not displayed
         pdf_image = self.cv_image.copy()
+        pdf_image_first_page = self.cv_image.copy()
 
         # For each rectangle in rectangles list draw rectangle and put text
         for index, rectangle in enumerate(self.rectangles):
-            self.add_rectangle(pdf_image, rectangle)
+            self.add_rectangle(pdf_image, rectangle, thickness=1)
+            self.add_rectangle(pdf_image_first_page, rectangle)
             self.put_text(pdf_image,
+                          str(index),
+                          rectangle.x_center,
+                          rectangle.y_center,
+                          rectangle.width / 4,
+                          rectangle.height / 4
+                          )
+            self.put_text(pdf_image_first_page,
                           str(index),
                           rectangle.x_center,
                           rectangle.y_center,
@@ -503,7 +542,7 @@ class MyImage:
                 text_2_x = 0
                 text_2_y = 0
 
-                # Becouse of A3 size is divided into two A4 size add two more texts
+                # Because of A3 size is divided into two A4 size add two more texts
                 # its easiest to handle that
                 if rectangle.size == A3_VERTICAL:
                     text_1_x = rectangle.x_center
@@ -520,18 +559,36 @@ class MyImage:
                               str(index) + ".1",
                               text_1_x,
                               text_1_y,
-                              rectangle.width / 2,
-                              rectangle.height / 2)
+                              rectangle.width / 4,
+                              rectangle.height / 4)
                 self.put_text(pdf_image,
                               str(index) + ".2",
                               text_2_x,
                               text_2_y,
-                              rectangle.width / 2,
-                              rectangle.height / 2)
-
-        # Create PDF
-        pdf = FPDF(orientation='P', unit='mm', format='A4')
-        self.put_image_into_pdf(pdf_image, pdf)
+                              rectangle.width / 4,
+                              rectangle.height / 4)
+        vertical_border = 0
+        horizontal_border = 0
+        if A4_WIDTH / A4_HEIGHT < pdf_image_first_page.shape[1] / pdf_image_first_page.shape[0]:
+            # Add border vertically
+            vertical_border = round(
+                (pdf_image_first_page.shape[1] * A4_HEIGHT / A4_WIDTH - pdf_image_first_page.shape[0]) / 2)
+        else:
+            # Add border horizontally
+            horizontal_border = round(
+                (pdf_image_first_page.shape[0] * A4_WIDTH / A4_HEIGHT - pdf_image_first_page.shape[1]) / 2)
+        pdf_image_first_page = cv2.copyMakeBorder(pdf_image_first_page,
+                                                  vertical_border,
+                                                  vertical_border,
+                                                  horizontal_border,
+                                                  horizontal_border,
+                                                  cv2.BORDER_CONSTANT,
+                                                  None,
+                                                  [255, 255, 255]  # White
+                                                  # [0, 0, 0]  # Black
+                                                  )
+        # Put first page into pdf
+        self.put_image_into_pdf(pdf_image_first_page, pdf)
 
         # For each rectangle in rectangle list
         for index, rectangle in enumerate(self.rectangles):
@@ -611,7 +668,7 @@ class MyImage:
         except:
             print(" ..There is a problem with saving PDF. Is it open?")
 
-# def image_resize(self, image, target_width=None, target_height=None, inter=cv2.INTER_AREA):
+# def image_resize(image, target_width=None, target_height=None, inter=cv2.INTER_AREA):
 #     # initialize the dimensions of the image to be resized and
 #     # grab the image size
 #     image_height, image_width = image.shape[:2]
@@ -638,13 +695,4 @@ class MyImage:
 #     resized_image = cv2.resize(image, dim, interpolation=inter)
 #
 #     # return the resized image
-#     return resized_image, ratio
-# def adaptive_treshold(self, image, block_size, c_value):
-#     gray_image_adaptive_treshold = cv2.adaptiveThreshold(src=image,
-#                                                          maxValue=255,
-#                                                          adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#                                                          thresholdType=cv2.THRESH_BINARY,
-#                                                          blockSize=block_size,
-#                                                          C=c_value)
-#     image = cv2.cvtColor(gray_image_adaptive_treshold, cv2.COLOR_BGR2RGB)
-#     return image
+#     return resized_image
