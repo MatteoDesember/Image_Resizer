@@ -11,6 +11,7 @@ from PIL import ImageTk, Image
 import numpy as np
 import cv2
 from win32api import GetSystemMetrics
+from tkinter import filedialog
 
 INFO = """
 *********************************************
@@ -111,11 +112,8 @@ class MyImage:
         # Set window size
         self.root.geometry("{}x{}".format(window_width, window_height))
 
-    '''
-        adaptive_treshold create black and white image (like bitmap image) with the given block_size and c_value
-    '''
-
     def adaptive_treshold(self, image, block_size, c_value):
+        """adaptive_treshold create black and white image (like bitmap image) with the given block_size and c_value"""
         gray_image_adaptive_treshold = cv2.adaptiveThreshold(src=image,
                                                              maxValue=255,
                                                              adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -124,11 +122,8 @@ class MyImage:
                                                              C=c_value)
         return gray_image_adaptive_treshold
 
-    '''
-        create_custom_rectangle_listeners sets some listeners which allow to draw custom rectangle
-    '''
-
     def create_custom_rectangle_listeners(self):
+        """create_custom_rectangle_listeners sets some listeners which allow to draw custom rectangle"""
         print("Select region to zoom. If selected press Enter")
         self.image_label.unbind('<Motion>')
         self.image_label.unbind('<ButtonRelease-1>')
@@ -138,11 +133,8 @@ class MyImage:
         self.image_label.bind('<Button-1>', self.left_button_down)
         self.image_label.bind('<ButtonRelease-1>', self.left_button_release)
 
-    '''
-        create_a4_listeners sets some listeners which allow to draw a4 rectangles
-    '''
-
     def create_a4_listeners(self):
+        """create_a4_listeners sets some listeners which allow to draw a4 rectangles"""
         print(" ..draw rectangles..")
         self.image_label.unbind('<Motion>')
         self.image_label.unbind('<ButtonRelease-1>')
@@ -152,11 +144,8 @@ class MyImage:
         self.image_label.bind('<ButtonRelease-1>', self.left_click)
         self.image_label.bind('<Button-3>', self.right_click)
 
-    '''
-        show_cv_image - shows image to user
-    '''
-
     def show_cv_image(self, image):
+        """show_cv_image - shows image to user"""
         if type(image) == np.ndarray:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             self.displayed_image = ImageTk.PhotoImage(image=Image.fromarray(image))
@@ -165,11 +154,8 @@ class MyImage:
 
         self.image_label.configure(image=self.displayed_image)
 
-    '''
-        add_rectangles adds all rectangles in list to displayed image
-    '''
-
     def add_rectangles(self):
+        """add_rectangles adds all rectangles in list to displayed image"""
         for index, rectangle in enumerate(self.rectangles):
             self.add_rectangle(self.cv_displayed_image, rectangle, self.zoom_ratio)
             self.put_text(self.cv_displayed_image,
@@ -180,11 +166,8 @@ class MyImage:
                           rectangle.height * self.zoom_ratio
                           )
 
-    '''
-        add_rectangle adds rectangle to image
-    '''
-
     def add_rectangle(self, image, rectangle, ratio=1.0, thickness=2):
+        """add_rectangle adds rectangle to image"""
         cv2.rectangle(
             image,
             (round(rectangle.x_start * ratio), round(rectangle.y_start * ratio)),
@@ -192,13 +175,12 @@ class MyImage:
             (0, 255, 0),  # BGR Green
             thickness)
 
-    '''
-        put_text adds text to image. 
+    def put_text(self, image, text, x, y, width, height):
+        """
+        put_text adds text to image.
         width - target text width
         height - target text height
-    '''
-
-    def put_text(self, image, text, x, y, width, height):
+        """
         # Default font_size and thickness
         font_size = 1.0
         thickness = 1
@@ -226,11 +208,8 @@ class MyImage:
             (0, 255, 0),  # BGR
             thickness)
 
-    '''
-        remove rectangle from list at i position
-    '''
-
     def remove_rectangle(self, i):
+        """remove rectangle from list at i position"""
         if len(self.rectangles) == 0:
             print("Empty list")
         elif i >= len(self.rectangles):
@@ -242,11 +221,8 @@ class MyImage:
             self.add_rectangles()
             self.show_rectangle(self.rectangle)
 
-    '''
-        draw rectangle with user given shape using mouse
-    '''
-
     def draw_custom_rectangle(self, rectangle):
+        """draw rectangle with user given shape using mouse"""
         # Copy displayed image so anything what is drawed on it is temporary
         display_image = self.cv_displayed_image.copy()
 
@@ -259,11 +235,8 @@ class MyImage:
 
         self.show_cv_image(display_image)
 
-    '''
-        show_rectangle draw rectangle and text to image
-    '''
-
     def show_rectangle(self, rectangle):
+        """show_rectangle draw rectangle and text to image"""
         # Copy displayed image so anything what is drawed on it is temporary
         display_image = self.cv_displayed_image.copy()
         cv2.rectangle(
@@ -283,11 +256,8 @@ class MyImage:
 
         self.show_cv_image(display_image)
 
-    '''
-        On left click add rectangle to list of rectangles, draw on image and display it
-    '''
-
     def left_click(self, event):
+        """On left click add rectangle to list of rectangles, draw on image and display it"""
         temp_rectangle = copy.copy(self.rectangle)
         self.add_rectangle(self.cv_displayed_image, temp_rectangle, self.zoom_ratio)
         self.put_text(self.cv_displayed_image,
@@ -300,39 +270,27 @@ class MyImage:
         self.rectangles.append(temp_rectangle)
         self.show_cv_image(self.cv_displayed_image)
 
-    '''
-        On right click remove last rectangle from image and from list of rectangles
-    '''
-
     def right_click(self, event):
+        """On right click remove last rectangle from image and from list of rectangles"""
         self.remove_rectangle(-1)
 
-    '''
-        on_mouse_move_create_rectangle draws custom rectangle on image
-    '''
-
     def on_mouse_move_create_rectangle(self, event):
+        """on_mouse_move_create_rectangle draws custom rectangle on image"""
         if self.draw_flag:
             self.custom_rectangle.x_end = event.x / self.zoom_ratio
             self.custom_rectangle.y_end = event.y / self.zoom_ratio
             self.draw_custom_rectangle(self.custom_rectangle)
 
-    '''
-        move sized rectangle on image
-    '''
-
     def on_mouse_move_with_rectangle(self, event):
+        """move sized rectangle on image"""
         self.rectangle.set_x_y_center(
             event.x / self.zoom_ratio,
             event.y / self.zoom_ratio,
         )
         self.show_rectangle(self.rectangle)
 
-    '''
-        left_button_down makes start point and end point so then on mouse move there can be rectangle displayed
-    '''
-
     def left_button_down(self, event):
+        """left_button_down makes start point and end point so then on mouse move there can be rectangle displayed"""
         self.draw_flag = True
         self.custom_rectangle.x_start = event.x / self.zoom_ratio
         self.custom_rectangle.y_start = event.y / self.zoom_ratio
@@ -340,11 +298,8 @@ class MyImage:
         self.custom_rectangle.y_end = event.y / self.zoom_ratio
         self.draw_custom_rectangle(self.custom_rectangle)
 
-    '''
-        left_button_release makes end point and draw custom rectangle
-    '''
-
     def left_button_release(self, event):
+        """left_button_release makes end point and draw custom rectangle"""
         self.draw_flag = False
 
         # If there is situation where x_start or y_start is little further
@@ -383,11 +338,8 @@ class MyImage:
             self.custom_rectangle.y_start = temp
         self.draw_custom_rectangle(self.custom_rectangle)
 
-    '''
-        keyboard event, print info if user pressed h or H
-    '''
-
     def on_keyboard_click(self, event):
+        """keyboard event, print info if user pressed h or H"""
         if event.keycode == 49:  # '1'
             self.rectangle.set_size(A4_VERTICAL)
             self.show_rectangle(rectangle=self.rectangle)
@@ -456,11 +408,8 @@ class MyImage:
         # elif event.keycode == 30:  # right arrow
         #     pass
 
-    '''
-        If user resizes window then resize image and figures on it
-    '''
-
     def on_window_resize(self, event):
+        """If user resizes window then resize image and figures on it"""
         image_width = event.width
         image_height = int(event.width / self.aspect_ratio)
 
@@ -473,11 +422,8 @@ class MyImage:
         self.add_rectangles()
         self.show_cv_image(self.cv_displayed_image)
 
-    '''
-        add image to pdf
-    '''
-
     def put_image_into_pdf(self, image, pdf):
+        """add image to pdf"""
         # Generate random string
         random_file_name = ''.join(random.choices(string.digits, k=5))
 
@@ -503,11 +449,8 @@ class MyImage:
         # Remove temporary image from disk
         os.remove("_temp_" + random_file_name + file_extention)
 
-    '''
-        Save to pdf
-    '''
-
     def save(self):
+        """Save to pdf"""
         print("Saving to pdf...")
 
         # Create PDF
@@ -663,8 +606,17 @@ class MyImage:
                 self.put_image_into_pdf(export_part, pdf)
         try:
             # Try to save to disk
-            pdf.output(os.path.splitext(self.image_dir)[0] + ".pdf", "F")
-            print(" ..Saved!")
+            file = filedialog.asksaveasfile(mode='w',
+                                            initialdir=os.path.dirname(os.path.abspath(self.image_dir)),
+                                            initialfile=os.path.basename(
+                                                os.path.abspath(os.path.splitext(self.image_dir)[0])),
+                                            defaultextension=".pdf",
+                                            filetypes=(('pdf file', '*.pdf'), ("all files", "*.*")))
+            if file:
+                pdf.output(file.name, "F")
+                print(" ..Saved!")
+            else:
+                print("Doesn't select file.")
         except:
             print(" ..There is a problem with saving PDF. Is it open?")
 

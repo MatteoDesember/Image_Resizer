@@ -2,12 +2,9 @@ import tkinter as tk
 from tkinter import filedialog
 from image import *
 
-'''
-    open_file_dialog opens file dialog and return selected file chosen by user as string
-'''
-
 
 def open_file_dialog():
+    """open_file_dialog opens file dialog and return selected file chosen by user as string"""
     file_path = tk.filedialog.askopenfilename()
     # file_dir = os.path.dirname(os.path.abspath(file))
     # file_name = os.path.basename(os.path.abspath(file))
